@@ -100,3 +100,15 @@ Migrations 001–003 are versioned in `db/`, applied transactionally with an adv
 ## Production deployment — approval required
 
 This is a tested local development application, not an approved institutional service. Before any hosting, production data import, identity connection or financial integration, obtain the approvals in [PRODUCTION.md](docs/PRODUCTION.md). After approval: build with `npm ci && npm run build`; provision managed PostgreSQL and restricted credentials; apply migrations through an approved one-time job; run `npm start` behind an HTTPS reverse proxy; configure origin, secure cookies, backups, monitoring and network controls. Do not seed fictional accounts in production. The current setup CLI intentionally seeds an empty local database; split migrations from seed and use an approved bootstrap administrator process for production. No production deployment credentials or infrastructure are included.
+
+### Sign-in returns HTTP 403 in Codespaces
+
+A 403 at `/api/login` means the origin check rejected the browser address before password validation. Current code automatically recognizes the exact forwarded origin for CODESPACE_NAME, independently of a stale localhost APP_ORIGIN. It does not allow arbitrary forwarded hosts or all Codespaces.
+
+For an immediate restart of an older checkout, stop the running server with **Ctrl+C** so the shell prompt is visible, then run:
+
+```sh
+APP_ORIGIN="https://${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}" COOKIE_SECURE=true npm run dev -- --port 3000
+```
+
+Refresh the forwarded port-3000 sign-in page after the server says Ready. Password-reset commands only execute at the shell prompt; typing them while the server is running sends text to the server process instead.

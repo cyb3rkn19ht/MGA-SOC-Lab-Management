@@ -18,6 +18,7 @@ jobs:
       - run: docker compose up -d --wait db
       - run: npm run db:setup
       - run: npm test
+      - run: npm run test:origin
       - run: npm run test:reset
       - run: npm run build
       - name: Start supervised preview

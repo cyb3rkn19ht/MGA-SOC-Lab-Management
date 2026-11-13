@@ -1,0 +1,7 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {configuredOrigins,requestOriginAllowed,secureSession} from '../lib/origin';
+const env={APP_ORIGIN:'http://localhost:3000',CODESPACE_NAME:'opulent-umbrella-g459qq6pgqxc9v47',COOKIE_SECURE:'false'};
+const forwarded='https://opulent-umbrella-g459qq6pgqxc9v47-3000.app.github.dev';
+test('Codespaces requests work despite a stale localhost APP_ORIGIN',()=>{assert.ok(requestOriginAllowed(forwarded,env));assert.ok(configuredOrigins(env).includes(forwarded));assert.ok(secureSession(forwarded,env));});
+test('foreign origins, other Codespaces, malformed and missing origins are rejected',()=>{for(const value of [null,'null','https://untrusted.invalid','https://other-codespace-3000.app.github.dev',forwarded+'.attacker.invalid',forwarded+'/path',forwarded+' http://localhost:3000'])assert.equal(requestOriginAllowed(value,env),false);});
+test('explicit origin and local HTTP preserve exact matching',()=>{assert.ok(requestOriginAllowed('http://localhost:3000',env));assert.equal(requestOriginAllowed('http://localhost:3001',env),false);assert.equal(secureSession('http://localhost:3000',env),false);assert.ok(requestOriginAllowed(forwarded,{APP_ORIGIN:forwarded+'/'}));});
+test('preview public port is independent of the internal Next.js port',()=>{assert.ok(requestOriginAllowed(forwarded,{...env,MGA_PUBLIC_PORT:'3000',PORT:'3001'}));assert.equal(requestOriginAllowed(forwarded,{...env,MGA_PUBLIC_PORT:'4000'}),false);});

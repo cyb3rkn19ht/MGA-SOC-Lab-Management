@@ -12,7 +12,8 @@
     "preview": "node scripts/preview.mjs",
     "test:preview": "node tests/preview-smoke.mjs",
     "demo:reset-admin": "node scripts/reset-demo-admin.mjs",
-    "test:reset": "node tests/reset-demo.mjs"
+    "test:reset": "node tests/reset-demo.mjs",
+    "test:origin": "tsx --test tests/origin.test.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.0",
