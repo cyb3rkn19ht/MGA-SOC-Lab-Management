@@ -4,5 +4,15 @@ export function configuredOrigins(env:Environment=process.env){const result=new 
  const name=env.CODESPACE_NAME,domain=env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN||'app.github.dev',port=env.MGA_PUBLIC_PORT||env.PORT||'3000';
  if(name&&/^[a-z0-9-]+$/i.test(name)&&/^(?:[a-z0-9-]+\.)+[a-z]{2,}$/i.test(domain)&&/^\d{1,5}$/.test(port)&&Number(port)>0&&Number(port)<65536)result.add(`https://${name}-${port}.${domain}`);
  if(result.size===0&&!env.APP_ORIGIN&&!name)result.add('http://localhost:3000');return [...result];}
-export function requestOriginAllowed(value:string|null,env:Environment=process.env){const normalized=origin(value||undefined);return normalized!==null&&configuredOrigins(env).includes(normalized);}
-export function secureSession(value:string|null,env:Environment=process.env){return env.COOKIE_SECURE==='true'||(requestOriginAllowed(value,env)&&value?.startsWith('https://')===true);}
+type ForwardedAddress={host?:string|null;forwardedHost?:string|null;fetchSite?:string|null};
+export function requestOriginAllowed(value:string|null,env:Environment=process.env,address:ForwardedAddress={}){
+ const normalized=origin(value||undefined);if(!normalized)return false;
+ if(configuredOrigins(env).includes(normalized))return true;
+ // Codespaces terminates HTTPS before forwarding to the development server.
+ // Require the exact forwarded Codespaces host or browser-controlled same-origin metadata.
+ if(env.NODE_ENV!=='development')return false;
+ const u=new URL(normalized);if(u.protocol!=='https:'||u.port||!/^[-a-z0-9]+-[0-9]{1,5}\.app\.github\.dev$/i.test(u.hostname))return false;
+ const host=address.forwardedHost||address.host;
+ return (typeof host==='string'&&host.toLowerCase()===u.host.toLowerCase())||address.fetchSite==='same-origin';
+}
+export function secureSession(value:string|null,env:Environment=process.env,address:ForwardedAddress={}){return env.COOKIE_SECURE==='true'||(requestOriginAllowed(value,env,address)&&value?.startsWith('https://')===true);}

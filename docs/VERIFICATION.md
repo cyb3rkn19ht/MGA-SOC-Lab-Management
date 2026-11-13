@@ -20,6 +20,11 @@ The actual user's Codespace cannot be accessed or rebuilt by the available tools
 
 ## Forwarded sign-in origin regression
 
-A reported `POST /api/login 403` occurred at the origin check before credential verification. Authentication now derives the exact allowed Codespaces origin from CODESPACE_NAME and the forwarding domain in both direct Next.js and supervised-preview startup. A stale localhost APP_ORIGIN no longer prevents sign-in from that Codespace. Development asset configuration uses the same origin list. No request Host or X-Forwarded-Host value is used to expand trust, other Codespaces remain disallowed, and validated HTTPS sign-ins set Secure session cookies.
+A reported `POST /api/login 403` occurred at the origin check before credential verification. Authentication now derives the exact allowed Codespaces origin from CODESPACE_NAME and the forwarding domain in both direct Next.js and supervised-preview startup. A stale localhost APP_ORIGIN no longer prevents sign-in from that Codespace. Development asset configuration uses the same origin list. Production trust remains limited to configured origins. A later development-only fallback supports missing Codespaces startup metadata as described below. Validated HTTPS sign-ins set Secure session cookies.
 
 Four origin regression tests pass. An HTTP integration check against direct Next.js with APP_ORIGIN deliberately left at localhost accepted the exact reported Codespaces origin, authenticated the demo administrator, loaded its session and JavaScript assets, and rejected foreign origins. Production compilation and TypeScript checks passed. This reproduces the request headers locally; it does not assert access to the user's running Codespace.
+
+
+## Missing Codespaces startup metadata
+
+Development sign-in now also supports proxies that omit CODESPACE_NAME or rewrite Host to localhost. Only HTTPS origins with the GitHub Codespaces hostname shape are eligible, and they must match the forwarded host exactly or carry browser-controlled `Sec-Fetch-Site: same-origin`. Cross-site/same-site metadata alone cannot authorize a request; foreign domains, mismatched forwarded hosts without same-origin metadata, missing origins and production fallback are rejected. This does not change production origin allowlists. Eight origin tests and an HTTP regression passed with all Codespaces environment variables omitted and APP_ORIGIN deliberately stale. Build/type checks passed.

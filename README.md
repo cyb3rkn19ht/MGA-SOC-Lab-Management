@@ -103,7 +103,7 @@ This is a tested local development application, not an approved institutional se
 
 ### Sign-in returns HTTP 403 in Codespaces
 
-A 403 at `/api/login` means the origin check rejected the browser address before password validation. Current code automatically recognizes the exact forwarded origin for CODESPACE_NAME, independently of a stale localhost APP_ORIGIN. It does not allow arbitrary forwarded hosts or all Codespaces.
+A 403 at `/api/login` means the origin check rejected the browser address before password validation. Current code automatically recognizes the exact forwarded origin for CODESPACE_NAME, independently of a stale localhost APP_ORIGIN. In development, missing startup metadata is handled by requiring the HTTPS Codespaces origin to match the forwarded host or browser-controlled same-origin Fetch Metadata. Cross-site and same-site requests from other pages remain rejected; this fallback is disabled in production.
 
 For an immediate restart of an older checkout, stop the running server with **Ctrl+C** so the shell prompt is visible, then run:
 
