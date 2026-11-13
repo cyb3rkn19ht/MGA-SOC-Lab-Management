@@ -112,3 +112,5 @@ APP_ORIGIN="https://${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_D
 ```
 
 Refresh the forwarded port-3000 sign-in page after the server says Ready. Password-reset commands only execute at the shell prompt; typing them while the server is running sends text to the server process instead.
+
+For direct `next dev` on a different port, the exact Codespaces origin is derived from the actual PORT set by Next.js. A direct server on 3001 therefore accepts its own port-3001 forwarded address. The supervised preview explicitly supplies MGA_PUBLIC_PORT so its external port remains independent of its internal Next.js port. Use the forwarded URL for the port you actually started; ports 3000 and 3001 are different browser origins.
