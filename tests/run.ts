@@ -1,0 +1,5 @@
+import nextEnv from '@next/env';nextEnv.loadEnvConfig(process.cwd());
+import {Pool} from 'pg';import {databaseUrl} from '../lib/config';import {spawnSync} from 'node:child_process';import {randomBytes} from 'node:crypto';
+const migrationUrl=new URL(databaseUrl('MIGRATION_DATABASE_URL'));const runtimeUrl=new URL(databaseUrl());const db=`mga_test_${randomBytes(6).toString('hex')}`;const owner=new Pool({connectionString:migrationUrl.toString()});migrationUrl.pathname='/'+db;runtimeUrl.pathname='/'+db;
+await owner.query(`CREATE DATABASE ${db}`);let code=1;
+try{const env={...process.env,DATABASE_URL:runtimeUrl.toString(),MIGRATION_DATABASE_URL:migrationUrl.toString()};const setup=spawnSync('node',['--import','tsx','db/setup.ts'],{env,stdio:'inherit'});if(setup.status!==0)throw Error('Test database setup failed');const tests=spawnSync('node',['--import','tsx','--test','tests/core.test.ts'],{env,stdio:'inherit'});code=tests.status??1;}finally{await owner.query(`DROP DATABASE ${db} WITH (FORCE)`);await owner.end();}process.exitCode=code;

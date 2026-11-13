@@ -1,0 +1,26 @@
+services:
+  app:
+    image: node:24-bookworm
+    command: sleep infinity
+    env_file: ../.env
+    environment:
+      MGA_DB_HOST: db
+    volumes:
+      - ..:/workspaces/mga-lab:cached
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:17
+    env_file: ../.env
+    environment:
+      POSTGRES_DB: mga_lab
+    volumes:
+      - mga_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mga_lab"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+volumes:
+  mga_dev_data:

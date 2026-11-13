@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: mga_lab
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate .env using node scripts/configure-local.mjs}
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: ["mga_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mga_lab"]
+      interval: 5s
+      retries: 10
+volumes:
+  mga_data:
