@@ -1,0 +1,3 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {demoViewerEnabled} from '../lib/demo-viewer';
+const development={NODE_ENV:'development',DATABASE_URL:'postgres://demo@localhost/demo'};
+test('viewer is enabled only for local development and can be switched off',()=>{assert.equal(demoViewerEnabled(development),true);assert.equal(demoViewerEnabled({...development,DEMO_VIEWER:'false'}),false);assert.equal(demoViewerEnabled({...development,NODE_ENV:'production',DEMO_VIEWER:'true'}),false);assert.equal(demoViewerEnabled({...development,DATABASE_URL:'postgres://demo@institutional.example/demo'}),false);});

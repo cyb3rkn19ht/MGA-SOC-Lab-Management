@@ -2,19 +2,25 @@
 
 Local full-stack Next.js / React / TypeScript application with PostgreSQL, preserving the supplied purple university prototype. All seeded inventory, personnel, facility values and costs are **fictional and unverified**. No university systems are connected. No public deployment has been performed.
 
+## Temporary no-login demo on port 3001
+
+The development app currently opens directly to the dashboard without a username or password. It uses the seeded fictional Faculty/Staff record for read-only database access. Laboratory details, inventory, purchasing history and PDF/Excel reporting are available; sign-in and all write operations are temporarily blocked by the server. The page clearly identifies this mode. It activates only for development against the local demo database. Production and remote-database connections retain authentication.
+
+Run `npm run preview` for the supervised app on port **3001** (Next.js runs internally on port 3002), or `npm run dev` for direct development on port **3001**. Open the private forwarded **3001** address. Restore normal sign-in by starting with `DEMO_VIEWER=false npm run preview` or `DEMO_VIEWER=false npm run dev`. No administrator privileges are granted anonymously. Your existing Codespace must pull these changes before it can display the new demo mode.
+
 ## Open the application in your browser
 
 [Create a GitHub Codespace](https://codespaces.new/cyb3rkn19ht/MGA-SOC-Lab-Management?quickstart=1) for this repository. GitHub may apply Codespaces usage limits or charges; creating the environment remains your action.
 
-The included dev container starts PostgreSQL, installs dependencies, runs migrations with fictional seed data, and starts a supervised preview on port 3000. A purple startup page shows progress until the application is ready. Open the **Ports** tab and choose **Open in Browser** for port **3000**. Keep the forwarded port **Private**. The preview process configures the exact forwarded HTTPS origin and secure cookies automatically. Sign in with the demo accounts below. This is a development preview; it does not publish a production university service.
+The included dev container starts PostgreSQL, installs dependencies, runs migrations with fictional seed data, and starts a supervised preview on port 3001. A purple startup page shows progress until the application is ready. Open the **Ports** tab and choose **Open in Browser** for port **3001**. Keep the forwarded port **Private**. The preview process configures the exact forwarded HTTPS origin and secure cookies automatically. The temporary viewer opens automatically; authenticated mode can be restored as described above. This is a development preview; it does not publish a production university service.
 
 If the browser does not open automatically, inspect `/tmp/mga-next.log`. The container owns the preview process, so it survives terminal closure. To restart it, use **Codespaces: Rebuild Container**. Running `npm run preview` again reports whether the existing preview is already running without starting a duplicate. Changing the forwarded host requires restarting the container so its permitted origin matches. A `localhost:3000` link on your own computer cannot reach a separate cloud workspace without port forwarding.
 
 ## Apply the startup fix to an existing Codespace
 
-In the Codespace terminal run `git pull --ff-only origin main`, then open the command palette (**Ctrl+Shift+P**, or **Cmd+Shift+P** on Mac), choose **Codespaces: Rebuild Container**, and confirm the rebuild. This updates the container command; refreshing the page alone does not apply container configuration changes. Existing database volumes are preserved. Once the Codespace reopens, open **Ports → 3000 → Open in Browser**. Keep the port private. The startup page refreshes automatically until the sign-in page is ready.
+In the Codespace terminal run `git pull --ff-only origin main`, then open the command palette (**Ctrl+Shift+P**, or **Cmd+Shift+P** on Mac), choose **Codespaces: Rebuild Container**, and confirm the rebuild. This updates the container command; refreshing the page alone does not apply container configuration changes. Existing database volumes are preserved. Once the Codespace reopens, open **Ports → 3001 → Open in Browser**. Keep the port private. The startup page refreshes automatically until the sign-in page is ready.
 
-The preview binds port 3000 on all interfaces and starts Next.js on an internal loopback port. It waits for PostgreSQL, applies migrations and installs missing dependencies before forwarding requests. Startup failures appear as a status page rather than an unexplained disconnected port. Next.js allows only the exact Codespaces hostname for development assets; API origin checks and secure session cookies remain enabled.
+The preview binds port 3001 on all interfaces and starts Next.js on an internal loopback port. It waits for PostgreSQL, applies migrations and installs missing dependencies before forwarding requests. Startup failures appear as a status page rather than an unexplained disconnected port. Next.js allows only the exact Codespaces hostname for development assets; API origin checks and secure session cookies remain enabled.
 
 ## Install and run
 
@@ -30,7 +36,7 @@ npm run db:setup
 npm run dev
 ```
 
-Open http://localhost:3000. Set APP_ORIGIN to the exact browser origin, including port, before starting the server. Different localhost/127.0.0.1 names count as different origins. This check protects writes from cross-origin requests.
+Open http://localhost:3001. Set APP_ORIGIN to the exact browser origin, including port, before starting the server. Different localhost/127.0.0.1 names count as different origins. This check protects writes from cross-origin requests.
 
 The migration account needs database owner and CREATE ROLE privileges for initial local setup. Runtime connections use `mga_app`, not the migration owner. Example files contain placeholders; the setup script generates unique local credentials. For a managed database, have the DBA provision a restricted runtime role and adapt the role-creation statement; rotate the runtime password in both PostgreSQL and DATABASE_URL. Do not give the web server MIGRATION_DATABASE_URL in a production environment.
 
@@ -71,7 +77,7 @@ npm start
 
 `npm test` creates a uniquely named temporary PostgreSQL database using MIGRATION_DATABASE_URL, migrates/seeds it, runs integration tests against the restricted runtime role, and drops it afterward. The migration account requires CREATEDB. It never runs test writes against your demonstration database. Tests cover concurrency, nonnegative stock, authorization including direct SQL policy enforcement, transfer conservation, immutable history, independent purchase approval, partial receipts/replays/overreceipt, return reconciliation and serialized assets.
 
-Browser QA can run with the application on port 3000 and the original prototype served on port 3001:
+Browser QA can run with the application on port 3001 and the original prototype served on port 3001:
 
 ```sh
 python -m http.server 3001 --directory prototype --bind 127.0.0.1
@@ -108,9 +114,9 @@ A 403 at `/api/login` means the origin check rejected the browser address before
 For an immediate restart of an older checkout, stop the running server with **Ctrl+C** so the shell prompt is visible, then run:
 
 ```sh
-APP_ORIGIN="https://${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}" COOKIE_SECURE=true npm run dev -- --port 3000
+APP_ORIGIN="https://${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}" COOKIE_SECURE=true npm run dev -- --port 3001
 ```
 
-Refresh the forwarded port-3000 sign-in page after the server says Ready. Password-reset commands only execute at the shell prompt; typing them while the server is running sends text to the server process instead.
+Refresh the forwarded port-3001 sign-in page after the server says Ready. Password-reset commands only execute at the shell prompt; typing them while the server is running sends text to the server process instead.
 
 For direct `next dev` on a different port, the exact Codespaces origin is derived from the actual PORT set by Next.js. A direct server on 3001 therefore accepts its own port-3001 forwarded address. The supervised preview explicitly supplies MGA_PUBLIC_PORT so its external port remains independent of its internal Next.js port. Use the forwarded URL for the port you actually started; ports 3000 and 3001 are different browser origins.

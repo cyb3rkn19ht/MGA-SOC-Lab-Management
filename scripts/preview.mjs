@@ -7,7 +7,7 @@ import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 
 process.chdir(path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..'));
-const port=Number(process.env.PORT||3000),internalPort=Number(process.env.MGA_INTERNAL_PORT||3001);
+const port=Number(process.env.PORT||3001),internalPort=Number(process.env.MGA_INTERNAL_PORT||3002);
 if(port===internalPort)throw Error('The preview and internal application ports must differ.');
 let stage='Starting laboratory workspace',detail='Preparing the development environment.',ready=false,stopping=false,child;
 const children=new Set();

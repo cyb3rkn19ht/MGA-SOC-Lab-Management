@@ -11,3 +11,8 @@ Stages: (1) reference/design/schema; (2) authenticated dashboard and labs; (3) t
 
 ## Development startup recovery (proposed before implementation)
 Add a temporary, purple university-themed startup page on the forwarded development port while dependencies, database migrations and Next.js initialize. It displays readiness or a short diagnostic rather than a browser connection error, then automatically opens the existing application. This is limited to development startup; dashboard and business-screen designs remain the baseline. Replace the detached lifecycle command with one foreground container process that owns startup and survives terminal closure.
+
+
+## Temporary login suspension
+
+User requested a port-3001 demo without login. Development now opens the existing dashboard as a read-only demo viewer. Add a clear temporary-mode notice and remove sign-in/sign-out and purchase-entry controls for this viewer. Preserve the purple layout, laboratory tabs, KPI cards, tables, facilities details and executive/reporting screens. Server-side write controls stay enforced. This change is limited to local development and can be reverted with DEMO_VIEWER=false.

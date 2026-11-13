@@ -1,5 +1,5 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import {configuredOrigins,requestOriginAllowed,secureSession} from '../lib/origin';
-const env={APP_ORIGIN:'http://localhost:3000',CODESPACE_NAME:'opulent-umbrella-g459qq6pgqxc9v47',COOKIE_SECURE:'false'};
+const env={APP_ORIGIN:'http://localhost:3000',CODESPACE_NAME:'opulent-umbrella-g459qq6pgqxc9v47',COOKIE_SECURE:'false',PORT:'3000'};
 const forwarded='https://opulent-umbrella-g459qq6pgqxc9v47-3000.app.github.dev';
 test('Codespaces requests work despite a stale localhost APP_ORIGIN',()=>{assert.ok(requestOriginAllowed(forwarded,env));assert.ok(configuredOrigins(env).includes(forwarded));assert.ok(secureSession(forwarded,env));});
 test('foreign origins, other Codespaces, malformed and missing origins are rejected',()=>{for(const value of [null,'null','https://untrusted.invalid','https://other-codespace-3000.app.github.dev',forwarded+'.attacker.invalid',forwarded+'/path',forwarded+' http://localhost:3000'])assert.equal(requestOriginAllowed(value,env),false);});

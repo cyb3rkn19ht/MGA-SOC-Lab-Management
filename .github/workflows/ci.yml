@@ -19,10 +19,11 @@ jobs:
       - run: npm run db:setup
       - run: npm test
       - run: npm run test:origin
+      - run: npm run test:viewer-config
       - run: npm run test:reset
       - run: npm run build
       - name: Start supervised preview
-        run: nohup npm run preview > /tmp/mga-preview.log 2>&1 &
+        run: DEMO_VIEWER=false nohup npm run preview > /tmp/mga-preview.log 2>&1 &
       - run: npm run test:preview
       - if: failure()
         run: tail -n 60 /tmp/mga-preview.log

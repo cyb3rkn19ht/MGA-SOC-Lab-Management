@@ -28,3 +28,10 @@ Four origin regression tests pass. An HTTP integration check against direct Next
 ## Missing Codespaces startup metadata
 
 Development sign-in now also supports proxies that omit CODESPACE_NAME or rewrite Host to localhost. Only HTTPS origins with the GitHub Codespaces hostname shape are eligible, and they must match the forwarded host exactly or carry browser-controlled `Sec-Fetch-Site: same-origin`. Cross-site/same-site metadata alone cannot authorize a request; foreign domains, mismatched forwarded hosts without same-origin metadata, missing origins and production fallback are rejected. This does not change production origin allowlists. Eight origin tests and an HTTP regression passed with all Codespaces environment variables omitted and APP_ORIGIN deliberately stale. Build/type checks passed.
+
+
+## Temporary port-3001 demo viewer
+
+Development now defaults to a read-only no-login viewer and port 3001, with a supervised internal Next.js port of 3002. The seeded fictional Faculty/Staff identity supplies restricted PostgreSQL context; it does not create an administrator session. All POST endpoints, including login, user provisioning, purchasing requests and inventory changes, return 403 while the viewer is active. Production and nonlocal database configurations never enable the viewer; DEMO_VIEWER=false restores normal development authentication.
+
+Verified through browser and HTTP checks: anonymous dashboard, laboratory profiles, inventory, purchasing history and executive reporting load; PDF/Excel downloads succeed; mutation endpoints reject requests; audit/admin data is not exposed. The interface labels the temporary read-only mode and omits write controls and sign-in/sign-out. Mobile overflow checks passed.

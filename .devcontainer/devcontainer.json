@@ -5,11 +5,11 @@
   "workspaceFolder": "/workspaces/mga-lab",
   "shutdownAction": "stopCompose",
   "forwardPorts": [
-    3000
+    3001
   ],
   "portsAttributes": {
-    "3000": {
-      "label": "MGA Laboratory Management",
+    "3001": {
+      "label": "MGA Laboratory Demo \u2014 no login",
       "onAutoForward": "openBrowser",
       "protocol": "http"
     }
