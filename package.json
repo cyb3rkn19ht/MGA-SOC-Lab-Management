@@ -10,7 +10,9 @@
     "test": "tsx tests/run.ts",
     "test:browser": "node tests/browser.mjs",
     "preview": "node scripts/preview.mjs",
-    "test:preview": "node tests/preview-smoke.mjs"
+    "test:preview": "node tests/preview-smoke.mjs",
+    "demo:reset-admin": "node scripts/reset-demo-admin.mjs",
+    "test:reset": "node tests/reset-demo.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.0",

@@ -1,0 +1,36 @@
+import {Pool} from 'pg';
+import {hash,compare} from 'bcryptjs';
+import {readFileSync} from 'node:fs';
+import {parseEnv} from 'node:util';
+import {randomBytes,createHash} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import assert from 'node:assert/strict';
+const env=parseEnv(readFileSync('.env','utf8'));
+const ownerUrl=new URL(process.env.MIGRATION_DATABASE_URL||env.MIGRATION_DATABASE_URL);
+if(process.env.MGA_DB_HOST)ownerUrl.hostname=process.env.MGA_DB_HOST;
+const owner=new Pool({connectionString:ownerUrl.toString()});
+const db='mga_reset_test_'+randomBytes(5).toString('hex');
+const url=new URL(ownerUrl);url.pathname='/'+db;
+const runtime=new URL(process.env.DATABASE_URL||env.DATABASE_URL);runtime.pathname='/'+db;
+await owner.query(`CREATE DATABASE ${db}`);
+const p=new Pool({connectionString:url.toString()});
+try{
+ const childEnv={...process.env,...env,MIGRATION_DATABASE_URL:url.toString(),DATABASE_URL:runtime.toString()};
+ const setup=spawnSync('npm',['run','db:setup'],{env:childEnv,encoding:'utf8'});
+ assert.equal(setup.status,0,'Fixture setup must succeed');
+ const u=(await p.query("SELECT id FROM users WHERE email='admin@demo.invalid'")).rows[0];
+ await p.query('UPDATE users SET password=$2,active=false WHERE id=$1',[u.id,await hash(randomBytes(24).toString('hex'),12)]);
+ await p.query("INSERT INTO sessions(token,user_id,expires) VALUES('test-session',$1,now()+interval '1 hour')",[u.id]);
+ const key=createHash('sha256').update('admin@demo.invalid').digest('hex');
+ await p.query("INSERT INTO login_attempts(key,attempts,reset_at) VALUES($1,20,now()+interval '1 hour')",[key]);
+ const reset=spawnSync('node',['scripts/reset-demo-admin.mjs'],{env:childEnv,encoding:'utf8'});
+ assert.equal(reset.status,0,'The reset command must succeed');
+ assert.ok(reset.stdout.includes(env.DEMO_PASSWORD),'The password is displayed only to the invoking terminal');
+ const account=(await p.query('SELECT password,active FROM users WHERE id=$1',[u.id])).rows[0];
+ assert.ok(await compare(env.DEMO_PASSWORD,account.password));assert.equal(account.active,true);
+ assert.equal((await p.query('SELECT count(*) n FROM sessions WHERE user_id=$1',[u.id])).rows[0].n,'0');
+ assert.equal((await p.query('SELECT count(*) n FROM login_attempts WHERE key=$1',[key])).rows[0].n,'0');
+ const audit=(await p.query("SELECT detail FROM audit WHERE action='demo_admin_password_reset'")).rows[0];
+ assert.ok(!JSON.stringify(audit).includes(env.DEMO_PASSWORD));
+ console.log('Demo password reset test passed: authentication hash, activation, lockout, session revocation and redacted audit.');
+}finally{await p.end();await owner.query(`DROP DATABASE ${db}`);await owner.end();}

@@ -46,6 +46,10 @@ Initial accounts (all share DEMO_PASSWORD from .env; a unique password is genera
 
 Manager and assistant are assigned to Digital Forensics. Administrators see all labs; managers and assistants see assigned labs; faculty can read and request purchases. Use User Administration to create local accounts, assign roles/labs and deactivate accounts. Privilege changes revoke the affected sessions. The current administrator cannot modify their own privileges. Password resets and institutional identity lifecycle integration require the production identity design described below.
 
+## Reset demo administrator access
+
+Run `npm run demo:reset-admin` in the Codespace terminal. It resets `admin@demo.invalid` to the generated DEMO_PASSWORD in the local ignored `.env`, reactivates the fictional demo account, clears its failed-login lockout and revokes its sessions. The sign-in email and password print only in that terminal. Refresh the sign-in page and use those details. The command requires the local migration database connection; it does not reset institutional accounts or publish passwords.
+
 ## Working stages
 
 1. **Design and model** — [design specification](docs/DESIGN.md), [architecture/schema](docs/ARCHITECTURE.md); original HTML retained in `prototype/index.html`.
