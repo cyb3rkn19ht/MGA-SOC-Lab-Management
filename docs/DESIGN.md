@@ -8,3 +8,6 @@ Necessary additions: login/session controls for authentication; lab tabs for fac
 At 900px: horizontal scrolling navigation, two KPI columns, single dashboard column, two form columns. At 550px: one KPI/form column, 14px padding. Print removes navigation and controls. Reports retain qualification language, scope, date range and separate current snapshots from period activity. All sample metrics are fictional and unverified, never USG compliance claims.
 
 Stages: (1) reference/design/schema; (2) authenticated dashboard and labs; (3) transactional inventory and purchasing; (4) reporting and tests. Visual review compares desktop and mobile screenshots to original. Any future major visual departure requires a documented rationale before implementation.
+
+## Development startup recovery (proposed before implementation)
+Add a temporary, purple university-themed startup page on the forwarded development port while dependencies, database migrations and Next.js initialize. It displays readiness or a short diagnostic rather than a browser connection error, then automatically opens the existing application. This is limited to development startup; dashboard and business-screen designs remain the baseline. Replace the detached lifecycle command with one foreground container process that owns startup and survives terminal closure.

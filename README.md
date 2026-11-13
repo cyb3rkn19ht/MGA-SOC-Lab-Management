@@ -6,9 +6,15 @@ Local full-stack Next.js / React / TypeScript application with PostgreSQL, prese
 
 [Create a GitHub Codespace](https://codespaces.new/cyb3rkn19ht/MGA-SOC-Lab-Management?quickstart=1) for this repository. GitHub may apply Codespaces usage limits or charges; creating the environment remains your action.
 
-The included dev container starts PostgreSQL, installs dependencies, runs migrations with fictional seed data, and starts Next.js. Wait for setup to complete, then open the **Ports** tab and choose **Open in Browser** for port **3000**. Keep the forwarded port **Private**. The start script configures the exact forwarded HTTPS origin and secure cookies automatically. Sign in with the demo accounts below. This is a development preview; it does not publish a production university service.
+The included dev container starts PostgreSQL, installs dependencies, runs migrations with fictional seed data, and starts a supervised preview on port 3000. A purple startup page shows progress until the application is ready. Open the **Ports** tab and choose **Open in Browser** for port **3000**. Keep the forwarded port **Private**. The preview process configures the exact forwarded HTTPS origin and secure cookies automatically. Sign in with the demo accounts below. This is a development preview; it does not publish a production university service.
 
-If the browser does not open automatically, inspect `/tmp/mga-next.log`. To restart the app, run `bash scripts/codespaces-start.sh` in the container terminal. If port 3000 is already in use, stop the existing app process first. Changing the forwarded host requires restarting the app so its permitted origin matches. A `localhost:3000` link on your own computer cannot reach a separate cloud workspace without port forwarding.
+If the browser does not open automatically, inspect `/tmp/mga-next.log`. The container owns the preview process, so it survives terminal closure. To restart it, use **Codespaces: Rebuild Container**. Running `npm run preview` again reports whether the existing preview is already running without starting a duplicate. Changing the forwarded host requires restarting the container so its permitted origin matches. A `localhost:3000` link on your own computer cannot reach a separate cloud workspace without port forwarding.
+
+## Apply the startup fix to an existing Codespace
+
+In the Codespace terminal run `git pull --ff-only origin main`, then open the command palette (**Ctrl+Shift+P**, or **Cmd+Shift+P** on Mac), choose **Codespaces: Rebuild Container**, and confirm the rebuild. This updates the container command; refreshing the page alone does not apply container configuration changes. Existing database volumes are preserved. Once the Codespace reopens, open **Ports → 3000 → Open in Browser**. Keep the port private. The startup page refreshes automatically until the sign-in page is ready.
+
+The preview binds port 3000 on all interfaces and starts Next.js on an internal loopback port. It waits for PostgreSQL, applies migrations and installs missing dependencies before forwarding requests. Startup failures appear as a status page rather than an unexplained disconnected port. Next.js allows only the exact Codespaces hostname for development assets; API origin checks and secure session cookies remain enabled.
 
 ## Install and run
 
@@ -70,6 +76,8 @@ npm run test:browser
 ```
 
 Uses `/usr/bin/chromium`, or set CHROMIUM_PATH to another installed Chromium. Screenshots and sample reports are saved to `work/qa/`. Browser tests use the seeded administrator account and DEMO_PASSWORD. Do not run browser QA against real university data.
+
+A supervised preview can also be started with `npm run preview` after local database setup. Run `npm run test:preview` in another terminal to verify readiness, login, authorization origin checks and PDF/Excel exports.
 
 ## Reports and dates
 

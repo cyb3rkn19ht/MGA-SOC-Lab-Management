@@ -1,10 +1,14 @@
 services:
   app:
-    image: node:24-bookworm
-    command: sleep infinity
+    image: node:24-bookworm-slim
+    working_dir: /workspaces/mga-lab
+    command: ["node", "scripts/preview.mjs"]
+    init: true
     env_file: ../.env
     environment:
       MGA_DB_HOST: db
+      CODESPACE_NAME: ${CODESPACE_NAME:-}
+      GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN: ${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}
     volumes:
       - ..:/workspaces/mga-lab:cached
     depends_on:
